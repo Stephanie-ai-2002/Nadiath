@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Un cadeau pour toi</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap");
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: radial-gradient(circle at top, #1a1a2e, #000);
+        font-family: "Poppins", sans-serif;
+        color: rgb(255, 252, 255);
+      }
+
+      /* CARD RESPONSIVE */
+      .card {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(
+          90deg,
+          rgba(128, 73, 131, 0.92) 15%,
+          rgba(211, 129, 195, 0.75) 25%,
+          rgba(182, 111, 173, 0.45) 50%,
+          rgba(240, 148, 220, 0.15) 70%
+        );
+        border-radius: 20px;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+
+        width: 90%;
+        max-width: 380px;
+
+        animation: fadeIn 1.2s ease;
+      }
+
+      /* TITRES */
+      h1 {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      /* INPUT */
+      input {
+        width: 90%;
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        text-align: center;
+        font-size: 16px;
+        font-family: "Poppins", sans-serif;
+      }
+
+      /* BUTTON */
+      button {
+        margin-top: 15px;
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(45deg, #71074e, #b30ba7);
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 15px;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* MESSAGE D'ERREUR / INFO */
+      .msg {
+        margin-top: 12px;
+        font-size: 13px;
+        min-height: 16px;
+        opacity: 0.9;
+      }
+      .msg.error {
+        color: #ff8a8a;
+      }
+      .msg.info {
+        color: #8ad1ff;
+      }
+      .hidden {
+        display: none;
+      }
+      /* ANIMATIONS */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .heart {
+        font-size: 30px;
+        animation: pulse 1.5s infinite;
+        margin-bottom: 10px;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* MOBILE OPTIMISATION */
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 15px;
+        }
+
+        p {
+          font-size: 10px;
+        }
+
+        .card {
+          padding: 7px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card" id="card">
+      <div class="heart">💙</div>
+      <h1 id="title">Pour une personne exceptionnelle.</h1>
+      <p id="subtitle">Saisir ton code secret personnel</p>
+
+      <input type="password" id="code" placeholder="••••••••" />
+      <input
+        type="password"
+        id="codeConfirm"
+        class="hidden"
+        placeholder="Confirme ton code"
+      />
+
+      <button id="actionBtn" onclick="handleAction()">Accéder</button>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <script>
+      /* ── SUPABASE CONFIG ── */
+      const SUPABASE_URL = "https://qgzrkmxjvdpmtardxzit.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnenJrbXhqdmRwbXRhcmR4eml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzgxMjYsImV4cCI6MjA5NDM1NDEyNn0.15iDt8FGy7f8X5tBGBO-_JsifVnMO3Eq_67yeMDKqMc";
+      const supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      // true = aucun code n'existe encore (premier passage)
+      // false = un code existe déjà, on demande de le saisir
+      let isFirstTime = null;
+
+      const titleEl = document.getElementById("title");
+      const subtitleEl = document.getElementById("subtitle");
+      const codeInput = document.getElementById("code");
+      const codeConfirmInput = document.getElementById("codeConfirm");
+      const actionBtn = document.getElementById("actionBtn");
+      const msgEl = document.getElementById("msg");
+
+      function showMsg(text, type = "error") {
+        msgEl.textContent = text;
+        msgEl.className = "msg " + type;
+      }
+
+      async function sha256(text) {
+        const enc = new TextEncoder().encode(text);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      async function init() {
+        const { data, error } = await supabaseClient
+          .from("app_config")
+          .select("access_code_hash")
+          .eq("id", 1)
+          .single();
+
+        if (error) {
+          console.error("Erreur chargement config:", error);
+          showMsg("Erreur de connexion, réessaie plus tard.");
+          titleEl.textContent = "Oups...";
+          subtitleEl.textContent = "Impossible de joindre le serveur.";
+          actionBtn.disabled = true;
+          return;
+        }
+
+        isFirstTime = !data.access_code_hash;
+
+        if (isFirstTime) {
+          titleEl.textContent = "Bienvenue Nadiath 💙";
+          subtitleEl.textContent = "Crée ton code secret personnel";
+          codeInput.placeholder = "Choisis ton code";
+          codeConfirmInput.classList.remove("hidden");
+        } else {
+          titleEl.textContent = "Un espace t'attend";
+          subtitleEl.textContent =
+            "Entre ton code secret pour découvrir ton univers";
+          codeInput.placeholder = "••••••••";
+          codeConfirmInput.classList.add("hidden");
+        }
+      }
+
+      async function handleAction() {
+        const code = codeInput.value.trim();
+        showMsg("");
+
+        if (!code) {
+          showMsg("Merci d'entrer un code.");
+          return;
+        }
+        if (code.length < 4) {
+          showMsg("Ton code doit faire au moins 4 caractères.");
+          return;
+        }
+
+        actionBtn.disabled = true;
+
+        if (isFirstTime) {
+          const confirmCode = codeConfirmInput.value.trim();
+          if (code !== confirmCode) {
+            showMsg("Les deux codes ne correspondent pas.");
+            actionBtn.disabled = false;
+            return;
+          }
+
+          const hash = await sha256(code);
+          const { error } = await supabaseClient
+            .from("app_config")
+            .update({ access_code_hash: hash })
+            .eq("id", 1);
+
+          if (error) {
+            console.error("Erreur création code:", error);
+            showMsg("Erreur lors de la création du code, réessaie.");
+            actionBtn.disabled = false;
+            return;
+          }
+
+          enterApp();
+        } else {
+          const { data, error } = await supabaseClient
+            .from("app_config")
+            .select("access_code_hash")
+            .eq("id", 1)
+            .single();
+
+          if (error) {
+            console.error("Erreur vérification code:", error);
+            showMsg("Erreur de connexion, réessaie.");
+            actionBtn.disabled = false;
+            return;
+          }
+          console.log("Data :", data);
+          console.log("Hash :", data?.access_code_hash);
+          console.log("Premier passage :", !data?.access_code_hash);
+
+          const hash = await sha256(code);
+          if (hash === data.access_code_hash) {
+            enterApp();
+          } else {
+            showMsg("Code incorrect ❌");
+            actionBtn.disabled = false;
+          }
+        }
+      }
+
+      function enterApp() {
+        sessionStorage.setItem("nadiathAccess", "granted");
+        document.getElementById("card").innerHTML = `
+          <div class="heart">💙</div>
+          <h1>Bienvenue chez toi 💙</h1>
+          <p>Chargement de ton espace...</p>
+        `;
+        setTimeout(() => {
+          window.location.href = "home.html";
+        }, 1800);
+      }
+
+      // Permet d'appuyer sur Entrée pour valider
+      [codeInput, codeConfirmInput].forEach((el) => {
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleAction();
+        });
+      });
+
+      init();
+    </script>
+  </body>
+</html>

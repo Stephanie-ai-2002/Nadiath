@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nadiath Souvenirs</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- ══ DESKTOP ══ -->
+    <div class="scene">
+      <div id="book" class="book">
+        <div class="pages">
+          <div class="page page-left">
+            <div class="pc">
+              <button class="back-btn" onclick="closeBook()">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span data-i18n="back">Retour</span>
+              </button>
+              <h2 class="pg-head" data-i18n="myMemories">Mes Souvenirs</h2>
+              <p class="pg-sub" data-i18n="subheading">
+                Chaque instant mérite d'être gardé
+              </p>
+              <div class="stats-row">
+                <div class="stat-chip">
+                  <div class="stat-num" id="stat-total">0</div>
+                  <div class="stat-lbl" data-i18n="statAll">Tous</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="stat-num" id="stat-fav">0</div>
+                  <div class="stat-lbl" data-i18n="statFav">Favoris</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="stat-num" id="stat-photos">0</div>
+                  <div class="stat-lbl" data-i18n="statPhotos">Photos</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="stat-num" id="stat-videos">0</div>
+                  <div class="stat-lbl" data-i18n="statVideos">Vidéos</div>
+                </div>
+              </div>
+              <div class="add-zone">
+                <span class="add-lbl" data-i18n="addNew"
+                  >Ajouter un souvenir</span
+                >
+                <div class="add-row">
+                  <button class="add-card" onclick="addMedia('photo')">
+                    <span class="multi-badge" data-i18n="multiLabel"
+                      >Multi</span
+                    >
+                    <div class="add-card-icon aci-purple">
+                      <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <span class="add-card-lbl" data-i18n="photo">Photo</span>
+                    <span class="add-card-sub">JPG, PNG…</span>
+                  </button>
+                  <button class="add-card" onclick="addMedia('video')">
+                    <span class="multi-badge" data-i18n="multiLabel"
+                      >Multi</span
+                    >
+                    <div class="add-card-icon aci-blue">
+                      <i class="fa-solid fa-video"></i>
+                    </div>
+                    <span class="add-card-lbl" data-i18n="video">Vidéo</span>
+                    <span class="add-card-sub">MP4, MOV…</span>
+                  </button>
+                  <button class="add-card" onclick="addMedia('doc')">
+                    <div class="add-card-icon aci-orange">
+                      <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <span class="add-card-lbl" data-i18n="doc">Document</span>
+                    <span class="add-card-sub">PDF, DOCX…</span>
+                  </button>
+                </div>
+              </div>
+              <div class="deco" data-i18n="myStats">✦ mes chiffres ✦</div>
+            </div>
+          </div>
+
+          <div class="page page-right">
+            <div class="pc">
+              <div class="right-header">
+                <h2 data-i18n="timeline">Chronologie</h2>
+                <input
+                  class="search-box"
+                  id="search-inp"
+                  type="text"
+                  placeholder="Rechercher…"
+                  oninput="renderGrid(this.value)"
+                />
+              </div>
+              <div class="recents-bar">
+                <div class="rec-lbl">
+                  <div class="rec-dot"></div>
+                  <span data-i18n="recents">Récents</span>
+                </div>
+                <div class="filter-tabs" id="filter-tabs">
+                  <button
+                    class="filter-tab active"
+                    onclick="setFilter('all', this)"
+                    data-i18n="statAll"
+                  >
+                    Tous
+                  </button>
+                  <button
+                    class="filter-tab"
+                    onclick="setFilter('photo', this)"
+                    data-i18n="statPhotos"
+                  >
+                    Photos
+                  </button>
+                  <button
+                    class="filter-tab"
+                    onclick="setFilter('video', this)"
+                    data-i18n="statVideos"
+                  >
+                    Vidéos
+                  </button>
+                  <button
+                    class="filter-tab"
+                    onclick="setFilter('doc', this)"
+                    data-i18n="docShort"
+                  >
+                    Docs
+                  </button>
+                </div>
+              </div>
+              <div class="mem-grid" id="mem-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cover" id="cover" onclick="openBook()">
+          <div class="cover-blob cb1"></div>
+          <div class="cover-blob cb2"></div>
+          <div class="cover-notch-bar">
+            <div class="nd cam"></div>
+            <div class="nd"></div>
+            <div class="nd"></div>
+          </div>
+          <div class="cover-inner">
+            <div class="cover-notch"><i class="fa-regular fa-heart"></i></div>
+            <h1>Nadiath<br /><em>Memories</em></h1>
+            <p class="cover-sub" data-i18n="coverTagline">
+              Parce que chaque souvenir mérite d'être gardé
+            </p>
+            <div class="cover-icons">
+              <div class="ci ci1"><i class="fa-solid fa-camera"></i></div>
+              <div class="ci ci2"><i class="fa-solid fa-heart"></i></div>
+              <div class="ci ci3"><i class="fa-solid fa-video"></i></div>
+              <div class="ci ci4"><i class="fa-solid fa-file-lines"></i></div>
+            </div>
+            <button class="cover-btn" data-i18n="openBook">
+              Ouvrir mon livre
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MOBILE ══ -->
+    <div class="mobile-app">
+      <div class="mob-cover" id="mob-cover">
+        <div class="mob-top-bar"></div>
+        <div class="mob-cover-blob mob-cb1"></div>
+        <div class="mob-cover-blob mob-cb2"></div>
+        <div class="mob-cover-blob mob-cb3"></div>
+        <div class="mob-lang-sw">
+          <button class="mob-lang-btn active" onclick="setLang('fr')">
+            FR
+          </button>
+          <button class="mob-lang-btn" onclick="setLang('en')">EN</button>
+          <button class="mob-lang-btn" onclick="setLang('ru')">RU</button>
+        </div>
+        <div class="mob-cover-notch"><i class="fa-regular fa-heart"></i></div>
+        <h1>Nadiath<br /><em>Memories</em></h1>
+        <p class="mob-cover-sub" data-i18n="coverTagline">
+          Parce que chaque souvenir mérite d'être gardé
+        </p>
+        <div class="mob-cover-icons">
+          <div class="mob-ci ci1"><i class="fa-solid fa-camera"></i></div>
+          <div class="mob-ci ci2"><i class="fa-solid fa-heart"></i></div>
+          <div class="mob-ci ci3"><i class="fa-solid fa-video"></i></div>
+          <div class="mob-ci ci4"><i class="fa-solid fa-file-lines"></i></div>
+        </div>
+        <button
+          class="mob-open-btn"
+          onclick="mobOpenBook()"
+          data-i18n="openBook"
+        >
+          Ouvrir mon livre
+        </button>
+      </div>
+
+      <div class="mob-pages-wrapper" id="mob-pages-wrapper">
+        <div class="mob-page-nav">
+          <div class="mob-page-nav-row">
+            <button class="mob-back-cover-btn" onclick="mobCloseBook()">
+              <i class="fa-solid fa-chevron-left"></i>
+              <span data-i18n="back">Retour</span>
+            </button>
+            <div class="mob-page-dots">
+              <div class="mob-dot active" id="mdot-1"></div>
+              <div class="mob-dot" id="mdot-2"></div>
+            </div>
+            <button
+              class="mob-nav-btn primary"
+              id="mob-next-btn"
+              onclick="mobNextPage()"
+            >
+              <span id="mob-nav-label">Souvenirs</span>
+              <i class="fa-solid fa-chevron-right" id="mob-nav-icon"></i>
+            </button>
+          </div>
+          <div class="mob-nav-lang-row">
+            <button class="mob-lang-btn active" onclick="setLang('fr')">
+              FR
+            </button>
+            <button class="mob-lang-btn" onclick="setLang('en')">EN</button>
+            <button class="mob-lang-btn" onclick="setLang('ru')">RU</button>
+          </div>
+        </div>
+
+        <div class="mob-pages-slides">
+          <!-- PAGE 1 -->
+          <div class="mob-page-slide page-1 visible" id="mob-slide-1">
+            <h2 class="mob-pg-head" data-i18n="myMemories">Mes Souvenirs</h2>
+            <p class="mob-pg-sub" data-i18n="subheading">
+              Chaque instant mérite d'être gardé
+            </p>
+            <div class="mob-stats-row">
+              <div class="mob-stat-chip">
+                <div class="mob-stat-num" id="mstat-total">0</div>
+                <div class="mob-stat-lbl" data-i18n="statAll">Tous</div>
+              </div>
+              <div class="mob-stat-chip">
+                <div class="mob-stat-num" id="mstat-fav">0</div>
+                <div class="mob-stat-lbl" data-i18n="statFav">Favoris</div>
+              </div>
+              <div class="mob-stat-chip">
+                <div class="mob-stat-num" id="mstat-photos">0</div>
+                <div class="mob-stat-lbl" data-i18n="statPhotos">Photos</div>
+              </div>
+              <div class="mob-stat-chip">
+                <div class="mob-stat-num" id="mstat-videos">0</div>
+                <div class="mob-stat-lbl" data-i18n="statVideos">Vidéos</div>
+              </div>
+            </div>
+            <div class="mob-deco" data-i18n="myStats">✦ mes chiffres ✦</div>
+            <p class="mob-add-lbl" data-i18n="addNew">Ajouter un souvenir</p>
+            <div class="mob-add-row">
+              <button class="mob-add-card" onclick="addMedia('photo')">
+                <span class="multi-badge" data-i18n="multiLabel">Multi</span>
+                <div class="mob-add-card-icon aci-purple">
+                  <i class="fa-solid fa-camera"></i>
+                </div>
+                <span class="mob-add-card-lbl" data-i18n="photo">Photo</span>
+                <span class="mob-add-card-sub">JPG, PNG…</span>
+              </button>
+              <button class="mob-add-card" onclick="addMedia('video')">
+                <span class="multi-badge" data-i18n="multiLabel">Multi</span>
+                <div class="mob-add-card-icon aci-blue">
+                  <i class="fa-solid fa-video"></i>
+                </div>
+                <span class="mob-add-card-lbl" data-i18n="video">Vidéo</span>
+                <span class="mob-add-card-sub">MP4, MOV…</span>
+              </button>
+            </div>
+            <div class="mob-add-row-single">
+              <button
+                class="mob-add-card"
+                onclick="addMedia('doc')"
+                style="width: calc(50% - 6px)"
+              >
+                <div class="mob-add-card-icon aci-orange">
+                  <i class="fa-solid fa-file-lines"></i>
+                </div>
+                <span class="mob-add-card-lbl" data-i18n="doc">Document</span>
+                <span class="mob-add-card-sub">PDF, DOCX…</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PAGE 2 -->
+          <div class="mob-page-slide page-2 hidden-right" id="mob-slide-2">
+            <div class="mob-right-header">
+              <h2 data-i18n="timeline">Chronologie</h2>
+              <input
+                class="mob-search-box"
+                id="mob-search-inp"
+                type="text"
+                placeholder="Rechercher…"
+                oninput="mobRenderGrid(this.value)"
+              />
+            </div>
+            <div class="mob-filter-tabs" id="mob-filter-tabs">
+              <button
+                class="mob-filter-tab active"
+                onclick="mobSetFilter('all', this)"
+                data-i18n="statAll"
+              >
+                Tous
+              </button>
+              <button
+                class="mob-filter-tab"
+                onclick="mobSetFilter('photo', this)"
+                data-i18n="statPhotos"
+              >
+                Photos
+              </button>
+              <button
+                class="mob-filter-tab"
+                onclick="mobSetFilter('video', this)"
+                data-i18n="statVideos"
+              >
+                Vidéos
+              </button>
+              <button
+                class="mob-filter-tab"
+                onclick="mobSetFilter('doc', this)"
+                data-i18n="docShort"
+              >
+                Docs
+              </button>
+            </div>
+            <div class="mob-recents-bar">
+              <div class="mob-rec-lbl">
+                <div class="mob-rec-dot"></div>
+                <span data-i18n="recents">Récents</span>
+              </div>
+            </div>
+            <div class="mob-mem-grid" id="mob-mem-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODAL ADD (multi) ══ -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title" id="sheet-title">Nouveaux fichiers</h3>
+
+        <!-- Shared title (optional) -->
+        <input
+          class="sheet-shared-title"
+          id="shared-title-inp"
+          type="text"
+          placeholder="Titre commun (optionnel)…"
+        />
+
+        <!-- File list -->
+        <div class="file-list" id="file-list"></div>
+
+        <!-- Add more -->
+        <button
+          class="sheet-add-more"
+          id="add-more-btn"
+          onclick="addMoreFiles()"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span data-i18n="addMore">Ajouter d'autres fichiers</span>
+        </button>
+
+        <!-- Progress -->
+        <div class="save-progress" id="save-progress">
+          <div
+            class="save-progress-bar"
+            id="save-progress-bar"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="sheet-btns">
+          <button class="s-cancel" onclick="closeModal()" data-i18n="cancel">
+            Annuler
+          </button>
+          <button
+            class="s-save"
+            onclick="saveMemories()"
+            id="save-btn"
+            data-i18n="saveAll"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONFIRM DELETE ══ -->
+    <div class="confirm-overlay" id="confirm-modal">
+      <div class="confirm-box">
+        <div class="c-icon">🗑️</div>
+        <h3 class="c-title" data-i18n="deleteTitle">Supprimer ?</h3>
+        <p class="c-msg" data-i18n="deleteMsg">
+          Ce souvenir sera définitivement supprimé.
+        </p>
+        <div class="c-btns">
+          <button class="c-keep" onclick="closeConfirm()" data-i18n="keep">
+            Garder
+          </button>
+          <button class="c-del" onclick="confirmDelete()" data-i18n="delete">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
