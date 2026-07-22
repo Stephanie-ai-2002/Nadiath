@@ -583,7 +583,8 @@ function getLocale() {
 
 function thumbHtml(m, cls = "") {
   if (m.type === "photo") return `<img src="${m.url}" alt="${m.title}">`;
-  if (m.type === "video") return `<video src="${m.url}" muted>`;
+  if (m.type === "video")
+    return `<video src="${m.url}" muted style="pointer-events:none"></video>`;
   // doc
   return `<div class="mem-pdf${cls}"><i class="fa-solid fa-file-lines"></i><span>DOC</span></div>`;
 }
@@ -637,21 +638,26 @@ function renderGrid(filter = "") {
       });
     });
 
-    // Clic sur la thumbnail pour ouvrir
+    // Clic simple = afficher/masquer les boutons (identique au mobile)
     item.querySelector(".mem-thumb-wrap").addEventListener("click", (e) => {
-      if (e.target.closest(".ov-btn")) return; // Si c'est un bouton
+      if (e.target.closest(".ov-btn")) return;
 
-      if (m.type === "doc") {
-        downloadMem(m.id);
-      } else {
-        window.open(m.url, "_blank");
-      }
+      const isOpen = item.classList.contains("active-ov");
+      document
+        .querySelectorAll(".mem-item")
+        .forEach((x) => x.classList.remove("active-ov"));
+      if (!isOpen) item.classList.add("active-ov");
+    });
+
+    // Double-clic sur la thumbnail pour ouvrir/voir le fichier (tous les types)
+    item.querySelector(".mem-thumb-wrap").addEventListener("dblclick", (e) => {
+      if (e.target.closest(".ov-btn")) return;
+      window.open(m.url, "_blank");
     });
 
     grid.appendChild(item);
   });
 }
-
 /* ── MOBILE GRID ── */
 function mobRenderGrid(filter = "") {
   const grid = document.getElementById("mob-mem-grid");
@@ -674,7 +680,8 @@ function mobRenderGrid(filter = "") {
     let thumbContent = "";
     if (m.type === "photo")
       thumbContent = `<img src="${m.url}" alt="${m.title}">`;
-    else if (m.type === "video") thumbContent = `<video src="${m.url}" muted>`;
+    else if (m.type === "video")
+      thumbContent = `<video src="${m.url}" muted style="pointer-events:none"></video>`;
     else
       thumbContent = `<div class="mob-mem-pdf"><i class="fa-solid fa-file-lines"></i><span>DOC</span></div>`;
 
@@ -715,6 +722,12 @@ function mobRenderGrid(filter = "") {
       if (!isOpen) item.classList.add("active-ov");
     });
 
+    // Double-tap sur la thumbnail pour ouvrir/voir le fichier (tous les types)
+    item.querySelector(".mob-mem-thumb").addEventListener("dblclick", (e) => {
+      if (e.target.closest(".mob-ov-btn")) return;
+      window.open(m.url, "_blank");
+    });
+
     grid.appendChild(item);
   });
 }
@@ -747,17 +760,9 @@ async function toggleFav(id) {
 
 /* ── DOWNLOAD ── */
 function toCloudinaryDownloadUrl(url, filename) {
-  const marker = "/upload/";
-  const idx = url.indexOf(marker);
-  if (idx === -1) return url;
-  const flag =
-    "fl_attachment:" + encodeURIComponent(filename.replace(/\.[^/.]+$/, ""));
-  return (
-    url.slice(0, idx + marker.length) +
-    flag +
-    "/" +
-    url.slice(idx + marker.length)
-  );
+  const separator = url.includes("?") ? "&" : "?";
+  const name = encodeURIComponent(filename.replace(/\.[^/.]+$/, ""));
+  return url + separator + "fl_attachment=" + name;
 }
 
 function downloadMem(id) {
