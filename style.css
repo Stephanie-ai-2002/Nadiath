@@ -795,9 +795,10 @@ body {
   justify-content: center;
   gap: 6px;
 }
-.mem-item:hover .mem-ov {
+.mem-item.active-ov .mem-ov {
   opacity: 1;
 }
+
 .ov-btn {
   width: 26px;
   height: 26px;
