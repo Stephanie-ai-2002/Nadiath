@@ -849,19 +849,24 @@ function updateStats() {
   const videos = memories.filter((m) => m.type === "video").length;
   const docs = memories.filter((m) => m.type === "doc").length;
 
+  const setText = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
   // Desktop
-  document.getElementById("stat-total").textContent = total;
-  document.getElementById("stat-fav").textContent = fav;
-  document.getElementById("stat-photos").textContent = photos;
-  document.getElementById("stat-videos").textContent = videos;
-  document.getElementById("stat-docs").textContent = docs;
+  setText("stat-total", total);
+  setText("stat-fav", fav);
+  setText("stat-photos", photos);
+  setText("stat-videos", videos);
+  setText("stat-docs", docs);
 
   // Mobile
-  document.getElementById("mstat-total").textContent = total;
-  document.getElementById("mstat-fav").textContent = fav;
-  document.getElementById("mstat-photos").textContent = photos;
-  document.getElementById("mstat-videos").textContent = videos;
-  document.getElementById("mstat-docs").textContent = docs;
+  setText("mstat-total", total);
+  setText("mstat-fav", fav);
+  setText("mstat-photos", photos);
+  setText("mstat-videos", videos);
+  setText("mstat-docs", docs);
 }
 /* Init */
 applyTranslations();
