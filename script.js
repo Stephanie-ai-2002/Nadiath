@@ -847,20 +847,22 @@ function updateStats() {
   const fav = memories.filter((m) => m.favorite).length;
   const photos = memories.filter((m) => m.type === "photo").length;
   const videos = memories.filter((m) => m.type === "video").length;
+  const docs = memories.filter((m) => m.type === "doc").length;
 
   // Desktop
   document.getElementById("stat-total").textContent = total;
   document.getElementById("stat-fav").textContent = fav;
   document.getElementById("stat-photos").textContent = photos;
   document.getElementById("stat-videos").textContent = videos;
+  document.getElementById("stat-docs").textContent = docs;
 
   // Mobile
   document.getElementById("mstat-total").textContent = total;
   document.getElementById("mstat-fav").textContent = fav;
   document.getElementById("mstat-photos").textContent = photos;
   document.getElementById("mstat-videos").textContent = videos;
+  document.getElementById("mstat-docs").textContent = docs;
 }
-
 /* Init */
 applyTranslations();
 updateMobNavLabel();
