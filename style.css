@@ -431,7 +431,7 @@ body {
 
 .stats-row {
   display: flex;
-  gap: 8px;
+  gap: 5px;
   margin-bottom: 18px;
 }
 .stat-chip {
@@ -443,14 +443,15 @@ body {
   text-align: center;
 }
 .stat-num {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--purple);
 }
 .stat-lbl {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--text2);
   margin-top: 1px;
+  white-space: nowrap;
 }
 
 .add-zone {
@@ -1606,8 +1607,8 @@ body {
 
   .mob-stats-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
     margin-bottom: 20px;
   }
   .mob-stat-chip {
@@ -1618,14 +1619,15 @@ body {
     text-align: center;
   }
   .mob-stat-num {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--purple);
   }
   .mob-stat-lbl {
-    font-size: 8px;
+    font-size: 7px;
     color: var(--text2);
     margin-top: 1px;
+    white-space: nowrap;
   }
 
   .mob-add-lbl {
@@ -2027,15 +2029,15 @@ body {
   }
 
   .stat-chip {
-    padding: 10px 6px;
+    padding: 8px 4px;
   }
 
   .stat-num {
-    font-size: 18px;
+    font-size: 15px;
   }
 
   .stat-lbl {
-    font-size: 9px;
+    font-size: 7px;
   }
   .right-header {
     flex-wrap: wrap;
