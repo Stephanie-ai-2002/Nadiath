@@ -77,6 +77,13 @@ const T = {
     typePHOTO: "PHOTO",
     typeVIDEO: "VIDÉO",
     typeDOC: "DOC",
+    hintTitle: "Comment ça marche",
+    hintClick: "Un clic",
+    hintDblClick: "Un double-clic",
+    hintText1:
+      "Clique une fois pour afficher les favoris, télécharger ou supprimer.",
+    hintText2: "Double-clique pour ouvrir la photo ou la vidéo.",
+    hintGotIt: "J'ai compris",
   },
   en: {
     myMemories: "My Memories",
@@ -125,6 +132,12 @@ const T = {
     typePHOTO: "PHOTO",
     typeVIDEO: "VIDEO",
     typeDOC: "DOC",
+    hintTitle: "How it works",
+    hintClick: "One click",
+    hintDblClick: "A double-click",
+    hintText1: "Click once to show favorites, download, or delete.",
+    hintText2: "Double-click to open the photo or video.",
+    hintGotIt: "I got it.",
   },
   ru: {
     myMemories: "Воспоминания",
@@ -173,6 +186,12 @@ const T = {
     typePHOTO: "ФОТО",
     typeVIDEO: "ВИДЕО",
     typeDOC: "ДОК",
+    hintTitle: "Как это работает",
+    hintClick: "Один клик",
+    hintDblClick: "Двойной клик",
+    hintText1: "Нажми один раз, чтобы показать избранное, скачать или удалить.",
+    hintText2: "Дважды нажми, чтобы открыть фото или видео.",
+    hintGotIt: "Я поняла.",
   },
 };
 
@@ -256,6 +275,7 @@ async function loadMemories() {
 function openBook() {
   document.getElementById("book").classList.add("open");
   setTimeout(() => renderGrid(), 1000);
+  setTimeout(() => showFirstHintIfNeeded(), 1200);
 }
 function closeBook() {
   document.getElementById("book").classList.remove("open");
@@ -268,6 +288,7 @@ function mobOpenBook() {
   document.getElementById("mob-pages-wrapper").classList.add("open");
   updateStats();
   mobRenderGrid("");
+  showFirstHintIfNeeded();
 }
 function mobCloseBook() {
   document.getElementById("mob-cover").classList.remove("hidden");
@@ -759,13 +780,14 @@ async function toggleFav(id) {
 }
 
 /* ── DOWNLOAD ── */
-function toCloudinaryDownloadUrl(url, filename) {
-  const separator = url.includes("?") ? "&" : "?";
-  const name = encodeURIComponent(filename.replace(/\.[^/.]+$/, ""));
-  return url + separator + "fl_attachment=" + name;
+function isIOS() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
 }
 
-function downloadMem(id) {
+async function downloadMem(id) {
   const m = memories.find((x) => x.id === id);
   if (!m) {
     console.error("Mémoire non trouvée:", id);
@@ -782,15 +804,35 @@ function downloadMem(id) {
           : ".pdf";
 
   const filename = m.title.replace(/\s+/g, "_") + ext;
-  const dlUrl = toCloudinaryDownloadUrl(m.url, filename);
 
-  const a = document.createElement("a");
-  a.href = dlUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showToast(t("toastDl"));
+  // iOS ne permet pas le téléchargement silencieux (restriction Apple).
+  // On ouvre le fichier : l'utilisateur utilise "Partager" > "Enregistrer".
+  if (isIOS()) {
+    window.open(m.url, "_blank");
+    showToast(t("toastDl"));
+    return;
+  }
+
+  // Windows / Mac / Linux / Android : téléchargement direct et silencieux
+  try {
+    const res = await fetch(m.url);
+    if (!res.ok) throw new Error("Échec du téléchargement");
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+
+    showToast(t("toastDl"));
+  } catch (err) {
+    console.error("Erreur téléchargement:", err);
+    showToast("Erreur de téléchargement, réessaie");
+  }
 }
 
 /* ── DELETE ── */
@@ -867,6 +909,18 @@ function updateStats() {
   setText("mstat-photos", photos);
   setText("mstat-videos", videos);
   setText("mstat-docs", docs);
+}
+
+/* ── GUIDE PREMIÈRE VISITE ── */
+function showFirstHintIfNeeded() {
+  if (localStorage.getItem("nadiathHintSeen") === "yes") return;
+  const overlay = document.getElementById("firstHintOverlay");
+  if (overlay) overlay.classList.add("active");
+}
+function closeFirstHint() {
+  localStorage.setItem("nadiathHintSeen", "yes");
+  const overlay = document.getElementById("firstHintOverlay");
+  if (overlay) overlay.classList.remove("active");
 }
 /* Init */
 applyTranslations();
