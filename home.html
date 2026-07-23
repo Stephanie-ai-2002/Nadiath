@@ -272,9 +272,9 @@
                 <div class="mob-stat-lbl" data-i18n="statVideos">Vidéos</div>
               </div>
               <div class="mob-stat-chip">
-  <div class="mob-stat-num" id="mstat-docs">0</div>
-  <div class="mob-stat-lbl" data-i18n="docShort">Docs</div>
-</div>
+                <div class="mob-stat-num" id="mstat-docs">0</div>
+                <div class="mob-stat-lbl" data-i18n="docShort">Docs</div>
+              </div>
             </div>
             <div class="mob-deco" data-i18n="myStats">✦ mes chiffres ✦</div>
             <p class="mob-add-lbl" data-i18n="addNew">Ajouter un souvenir</p>
@@ -433,6 +433,30 @@
             Supprimer
           </button>
         </div>
+      </div>
+    </div>
+    <!-- ══ GUIDE PREMIÈRE VISITE ══ -->
+    <div class="first-hint-overlay" id="firstHintOverlay">
+      <div class="first-hint-box">
+        <div class="first-hint-icon">
+          <i class="fa-solid fa-hand-pointer"></i>
+        </div>
+        <h3 data-i18n="hintTitle">Comment ça marche</h3>
+        <p data-i18n="hintText1">
+          <b data-i18n="hintClick">Un clic</b> sur un souvenir affiche favoris,
+          télécharger et supprimer.
+        </p>
+        <p data-i18n="hintText2">
+          <b data-i18n="hintDblClick">Un double-clic</b> ouvre la photo ou la
+          vidéo en grand.
+        </p>
+        <button
+          class="first-hint-btn"
+          onclick="closeFirstHint()"
+          data-i18n="hintGotIt"
+        >
+          J'ai compris
+        </button>
       </div>
     </div>
     <script src="script.js"></script>
