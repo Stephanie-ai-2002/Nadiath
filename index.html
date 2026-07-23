@@ -158,7 +158,7 @@
 
   <body>
     <div class="card" id="card">
-      <div class="heart">💙</div>
+      <div class="heart">❤️</div>
       <h1 id="title">Pour une personne exceptionnelle.</h1>
       <p id="subtitle">Saisir ton code secret personnel</p>
 
@@ -226,7 +226,7 @@
         isFirstTime = !data.access_code_hash;
 
         if (isFirstTime) {
-          titleEl.textContent = "Bienvenue Nadiath 💙";
+          titleEl.textContent = "Bienvenue Mon cœur ❤️";
           subtitleEl.textContent = "Crée ton code secret personnel";
           codeInput.placeholder = "Choisis ton code";
           codeConfirmInput.classList.remove("hidden");
@@ -234,7 +234,7 @@
           titleEl.textContent = "Un espace t'attend";
           subtitleEl.textContent =
             "Entre ton code secret pour découvrir ton univers";
-          codeInput.placeholder = "••••••••";
+          codeInput.placeholder = "••••";
           codeConfirmInput.classList.add("hidden");
         }
       }
@@ -306,8 +306,8 @@
       function enterApp() {
         sessionStorage.setItem("nadiathAccess", "granted");
         document.getElementById("card").innerHTML = `
-          <div class="heart">💙</div>
-          <h1>Bienvenue chez toi 💙</h1>
+          <div class="heart">❤️</div>
+          <h1>Bienvenue Mon cœur ❤️</h1>
           <p>Chargement de ton espace...</p>
         `;
         setTimeout(() => {
